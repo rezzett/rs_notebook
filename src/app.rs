@@ -55,10 +55,10 @@ impl App {
 
     fn command_handler(&mut self, user_input: &str) {
         match user_input {
-            "a" => self.state = AppState::Add,
-            "d" => self.state = AppState::Delelte,
-            "s" => self.state = AppState::Show,
-            "q" => self.state = AppState::Quit,
+            "a" | "A" | "1" => self.state = AppState::Add,
+            "d" | "D" | "3" => self.state = AppState::Delelte,
+            "s" | "S" | "2" => self.state = AppState::Show,
+            "q" | "Q" | "4" => self.state = AppState::Quit,
             _ => {
                 println!("Invalid command!");
                 self.state = AppState::Menu;
