@@ -21,15 +21,17 @@ impl Store {
     }
 
     pub fn add_note(&mut self, text: &str) {
-        unimplemented!();
+        self.notes.push(Note {text: text.to_string()})
+        // TODO save
     }
 
     pub fn remove_note(&mut self, index: usize) {
-        unimplemented!();
+        self.notes.remove(index);
+        // TODO save
     }
 
-    pub fn get_notes(&self) -> Vec<Note> {
-        unimplemented!();
+    pub fn get_notes(&self) -> &[Note] {
+        &self.notes
     }
 
     fn save(&self) {
