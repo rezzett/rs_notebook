@@ -60,13 +60,15 @@ impl App {
                 }
                 AppState::Show => {
                     if self.check_empty() {
-                        println!("Thre is no notes yet!");
                         self.state = AppState::Menu;
                         continue;
                     }
+                    println!("Thre is no notes yet!");
+                    println!("///////////// LIST OF NOTES ///////////////\n");
                     for (idx, note) in (self.store.get_notes()).iter().enumerate() {
-                        println!("{}.) {}", idx, note.text);
+                        println!("{}.) {}", idx, note);
                     }
+                    println!("\n///////////////////////////////////////////");
                     self.state = AppState::Menu;
                 }
                 AppState::Quit => {
