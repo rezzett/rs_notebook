@@ -1,3 +1,5 @@
+use crate::store::*;
+
 enum AppState {
     Menu,
     Add,
@@ -8,12 +10,14 @@ enum AppState {
 
 pub struct App {
     state: AppState,
+    store: Store,
 }
 
 impl App {
     pub fn new() -> App {
         App {
             state: AppState::Menu,
+            store: Store::new(),
         }
     }
 
@@ -27,13 +31,16 @@ impl App {
                 }
                 AppState::Add => {
                     println!("ADD");
+                    self.add();
                     self.state = AppState::Menu;
                 }
                 AppState::Delelte => {
+                    self.del();
                     println!("DEL");
                     self.state = AppState::Menu;
                 }
                 AppState::Show => {
+                    self.show();
                     println!("SHOW");
                     self.state = AppState::Menu;
                 }
@@ -63,6 +70,27 @@ impl App {
                 println!("Invalid command!");
                 self.state = AppState::Menu;
             }
+        }
+    }
+
+    fn add(&mut self) {
+        let input = App::get_input("Enter your note: ");
+        self.store.add_note(input.as_str());
+    }
+
+    fn del(&mut self) {
+        let index = App::get_input("Enter number of note to remove: ");
+        if let Ok(idx) = index.parse::<usize>() {
+            self.store.remove_note(idx);
+        } else {
+            println!("Invalid index!");
+            self.state = AppState::Menu;
+        }
+    }
+
+    fn show(&self) {
+        for note in self.store.get_notes() {
+            println!("{}", note.text);
         }
     }
 
