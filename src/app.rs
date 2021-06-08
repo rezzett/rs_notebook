@@ -30,18 +30,43 @@ impl App {
                     self.command_handler(user_input.as_str());
                 }
                 AppState::Add => {
-                    println!("ADD");
-                    self.add();
+                    let input = App::get_input("Enter your note: ");
+                    if input.len() < 3 {
+                        println!("The note must be at least 3 characters long");
+                        continue;
+                    }
+                    self.store.add_note(input.as_str());
                     self.state = AppState::Menu;
                 }
                 AppState::Delelte => {
-                    self.del();
-                    println!("DEL");
+                    if self.check_empty() {
+                        println!("There is no notes yet!");
+                        self.state = AppState::Menu;
+                        continue;
+                    }
+                    let index = App::get_input("Enter number of note to remove: ");
+                    if let Ok(idx) = index.parse::<usize>() {
+                        if idx > (self.store.get_notes().len() - 1) {
+                            println!("A note with index {} dose not exists!", idx);
+                            self.state = AppState::Menu;
+                            continue;
+                        }
+                        self.store.remove_note(idx);
+                    } else {
+                        println!("Invalid index!");
+                        self.state = AppState::Menu;
+                    }
                     self.state = AppState::Menu;
                 }
                 AppState::Show => {
-                    self.show();
-                    println!("SHOW");
+                    if self.check_empty() {
+                        println!("Thre is no notes yet!");
+                        self.state = AppState::Menu;
+                        continue;
+                    }
+                    for (idx, note) in (self.store.get_notes()).iter().enumerate() {
+                        println!("{}.) {}", idx, note.text);
+                    }
                     self.state = AppState::Menu;
                 }
                 AppState::Quit => {
@@ -73,27 +98,6 @@ impl App {
         }
     }
 
-    fn add(&mut self) {
-        let input = App::get_input("Enter your note: ");
-        self.store.add_note(input.as_str());
-    }
-
-    fn del(&mut self) {
-        let index = App::get_input("Enter number of note to remove: ");
-        if let Ok(idx) = index.parse::<usize>() {
-            self.store.remove_note(idx);
-        } else {
-            println!("Invalid index!");
-            self.state = AppState::Menu;
-        }
-    }
-
-    fn show(&self) {
-        for note in self.store.get_notes() {
-            println!("{}", note.text);
-        }
-    }
-
     fn get_input(prompt: &str) -> String {
         println!("{}", prompt);
         let mut buf = String::new();
@@ -101,5 +105,9 @@ impl App {
             .read_line(&mut buf)
             .expect("[ERROR]: Input failed at function app::App::get_input");
         buf.trim().to_string()
+    }
+
+    fn check_empty(&self) -> bool {
+        self.store.get_notes().is_empty()
     }
 }

@@ -49,11 +49,11 @@ impl Store {
 
 impl Drop for Store {
     fn drop(&mut self) {
-        // FIX IT!
+        let mut contents = String::new();
         for note in &self.notes {
-            let line = format!("{}\n", note.text);
-            std::fs::write(STORE_NAME, line)
-                .expect("[ERROR]: Failed to save data at store::Store::drop");
+            contents.push_str(&format!("{}\n", note.text));
         }
+        std::fs::write(STORE_NAME, contents)
+            .expect("[ERROR]: Failed to save data at store::Store::drop");
     }
 }
