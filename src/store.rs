@@ -49,6 +49,7 @@ impl Store {
 
 impl Drop for Store {
     fn drop(&mut self) {
+        // FIX IT!
         for note in &self.notes {
             let line = format!("{}\n", note.text);
             std::fs::write(STORE_NAME, line)
