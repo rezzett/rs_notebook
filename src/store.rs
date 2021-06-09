@@ -1,18 +1,18 @@
-use chrono::{DateTime, Datelike, Local, Timelike};
+use chrono::{DateTime, Datelike, FixedOffset, Local, NaiveDateTime, TimeZone, Timelike, Utc};
 use std::fmt;
 const STORE_NAME: &'static str = "store.db";
 
 #[derive(Debug)]
 pub struct Note {
     pub text: String,
-    datetime: DateTime<Local>,
+    datetime: DateTime<Utc>,
 }
 
 impl Note {
-    pub fn new(text: &str) -> Note {
+    pub fn new(text: &str, datetime: DateTime<Utc>) -> Note {
         Note {
             text: text.to_string(),
-            datetime: Local::now(),
+            datetime,
         }
     }
 }
@@ -21,13 +21,9 @@ impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}\t{:02}:{:02} {:02}.{:02}.{}",
+            "{}\t{}",
             self.text,
-            self.datetime.hour(),
-            self.datetime.minute(),
-            self.datetime.day(),
-            self.datetime.month(),
-            self.datetime.year()
+            self.datetime.format("%d.%m.%Y %H:%M:%S %z")
         )
     }
 }
@@ -46,13 +42,17 @@ impl Store {
             .expect("[ERROR]: Failed to read content at store::Store::new()");
         let mut notes = vec![];
         for line in contents.lines() {
-            notes.push(Note::new(line)); // TODO parse time
+            let mut data = line.split('\t');
+            let text = data.next().unwrap();
+            let time = data.next().unwrap();
+            let time = DateTime::parse_from_str(time, "%d.%m.%Y %H:%M:%S %z").expect("FAILED!!!!");
+            notes.push(Note::new(text, Utc.from_utc_datetime(&time.naive_utc())));
         }
         Store { notes }
     }
 
     pub fn add_note(&mut self, text: &str) {
-        self.notes.push(Note::new(text));
+        self.notes.push(Note::new(text, Utc::now()));
     }
 
     pub fn remove_note(&mut self, index: usize) {
