@@ -1,15 +1,15 @@
-use chrono::{DateTime, Datelike, FixedOffset, Local, NaiveDateTime, TimeZone, Timelike, Utc};
+use chrono::{DateTime, Local, TimeZone};
 use std::fmt;
 const STORE_NAME: &'static str = "store.db";
 
 #[derive(Debug)]
 pub struct Note {
     pub text: String,
-    datetime: DateTime<Utc>,
+    datetime: DateTime<Local>,
 }
 
 impl Note {
-    pub fn new(text: &str, datetime: DateTime<Utc>) -> Note {
+    pub fn new(text: &str, datetime: DateTime<Local>) -> Note {
         Note {
             text: text.to_string(),
             datetime,
@@ -46,13 +46,16 @@ impl Store {
             let text = data.next().unwrap();
             let time = data.next().unwrap();
             let time = DateTime::parse_from_str(time, "%d.%m.%Y %H:%M:%S %z").expect("FAILED!!!!");
-            notes.push(Note::new(text, Utc.from_utc_datetime(&time.naive_utc())));
+            notes.push(Note::new(
+                text,
+                Local.from_local_datetime(&time.naive_local()).unwrap(),
+            ));
         }
         Store { notes }
     }
 
     pub fn add_note(&mut self, text: &str) {
-        self.notes.push(Note::new(text, Utc::now()));
+        self.notes.push(Note::new(text, Local::now()));
     }
 
     pub fn remove_note(&mut self, index: usize) {
